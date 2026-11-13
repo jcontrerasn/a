@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TrackIT_backend.Dtos;
 using TrackIT_backend.Entities;
-using TrackIT_backend.Repositories;
+using TrackIT_backend.Interfaces;
 
 namespace TrackIT_backend.Services
 {

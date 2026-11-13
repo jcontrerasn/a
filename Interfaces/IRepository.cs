@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using TrackIT_backend.Entities;
 
-namespace TrackIT_backend.Repositories
+namespace TrackIT_backend.Interfaces
 {
     public interface IRepository<TEntity> where TEntity : EntityBase
     {

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using TrackIT_backend.Dtos;
 
-namespace TrackIT_backend.Services
+namespace TrackIT_backend.Interfaces
 {
     public interface ITrackItemService
     {
