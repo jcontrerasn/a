@@ -34,16 +34,8 @@ namespace TrackIT_backend.Interfaces
             string usuarioCreador,
             CancellationToken cancellationToken);
 
-        Task<List<TareaResponseDto>> ObtenerInvolucradoEnAsync(
-            string usuario,
-            CancellationToken cancellationToken);
-
-        Task<List<TareaResponseDto>> ObtenerCreadasPorUsuarioAsync(
-            string usuario,
-            CancellationToken cancellationToken);
-
-        Task<List<TareaResponseDto>> ObtenerOtrasAsync(
-            string usuario,
+        Task<List<TareaResponseDto>> ObtenerPorFlagAsync(
+            ListarTareasFlagRequestDto request,
             CancellationToken cancellationToken);
     }
 }

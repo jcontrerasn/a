@@ -404,271 +404,94 @@ namespace TrackIT_backend.Repositories
             }
         }
 
-        public async Task<List<Tarea>> ObtenerInvolucradoEnAsync(
+        public async Task<List<Tarea>> ObtenerPorFlagAsync(
+            string flag,
             string usuario,
             CancellationToken cancellationToken)
         {
-            const string sql = @"
-                SELECT
-                    tarea.IdTarea,
-                    tarea.Titulo,
-                    tarea.Descripcion,
-                    tarea.FechaVencimiento,
-                    tarea.UsuarioCreador,
-                    tarea.FechaCreacion,
-                    tarea.Estado,
-                    rol.Nombre AS RolUsuarioCreador,
-                    involucrado.IdTareaInvolucrado,
-                    involucrado.Usuario
-                FROM dbo.TRACKIT_Tareas tarea
-                INNER JOIN dbo.TRACKIT_TareaInvolucrados involucrado
-                    ON involucrado.IdTarea = tarea.IdTarea
-                OUTER APPLY
-                (
-                    SELECT TOP 1 r.Nombre
-                    FROM dbo.TRACKIT_UsuarioRoles usuarioRol
-                    INNER JOIN dbo.TRACKIT_Roles r
-                        ON r.IdRol = usuarioRol.IdRol
-                    WHERE usuarioRol.Usuario = tarea.UsuarioCreador
-                      AND usuarioRol.Activo = 1
-                      AND r.Activo = 1
-                    ORDER BY r.IdRol
-                ) rol
-                WHERE EXISTS
-                (
-                    SELECT 1
-                    FROM dbo.TRACKIT_TareaInvolucrados involucradoBuscado
-                    WHERE involucradoBuscado.IdTarea = tarea.IdTarea
-                      AND involucradoBuscado.Usuario = @Usuario
-                )
-                ORDER BY
-                    tarea.FechaVencimiento,
-                    tarea.FechaCreacion DESC,
-                    tarea.IdTarea DESC,
-                    involucrado.IdTareaInvolucrado";
-
-            var tareas = new List<Tarea>();
-            var tareasPorId = new Dictionary<int, Tarea>();
-
             using (var connection = new SqlConnection(connectionString))
-            using (var command = new SqlCommand(sql, connection))
+            using (var command = new SqlCommand(
+                "pr_trackit_ListarTareasFlag",
+                connection))
             {
-                command.CommandType = CommandType.Text;
+                command.CommandType = CommandType.StoredProcedure;
                 command.CommandTimeout = 30;
-                command.Parameters.Add("Usuario", SqlDbType.VarChar, 100).Value = usuario;
+                command.Parameters.Add(
+                    "Pflag",
+                    SqlDbType.VarChar,
+                    20).Value = flag;
+                command.Parameters.Add(
+                    "Pusuario",
+                    SqlDbType.VarChar,
+                    100).Value = usuario;
 
                 await connection.OpenAsync(cancellationToken);
 
-                using (var reader = await command.ExecuteReaderAsync(cancellationToken))
+                using (var reader = await command.ExecuteReaderAsync(
+                    cancellationToken))
                 {
+                    var tareas = new List<Tarea>();
+                    var tareasPorId = new Dictionary<int, Tarea>();
+
                     while (await reader.ReadAsync(cancellationToken))
                     {
-                        var idTarea = reader.GetInt32(reader.GetOrdinal("IdTarea"));
-                        Tarea tarea;
-
-                        if (!tareasPorId.TryGetValue(idTarea, out tarea))
+                        var tarea = new Tarea
                         {
-                            tarea = new Tarea
-                            {
-                                IdTarea = idTarea,
-                                Titulo = LeerTexto(reader, "Titulo"),
-                                Descripcion = LeerTexto(reader, "Descripcion"),
-                                FechaVencimiento = reader.GetDateTime(
-                                    reader.GetOrdinal("FechaVencimiento")),
-                                UsuarioCreador = LeerTexto(reader, "UsuarioCreador"),
-                                FechaCreacion = reader.GetDateTime(
-                                    reader.GetOrdinal("FechaCreacion")),
-                                Estado = LeerTexto(reader, "Estado"),
-                                RolUsuarioCreador = LeerTexto(
-                                    reader, "RolUsuarioCreador")
-                            };
+                            IdTarea = reader.GetInt32(
+                                reader.GetOrdinal("IdTarea")),
+                            Titulo = LeerTexto(reader, "Titulo"),
+                            Descripcion = LeerTexto(
+                                reader,
+                                "Descripcion"),
+                            FechaVencimiento = reader.GetDateTime(
+                                reader.GetOrdinal("FechaVencimiento")),
+                            UsuarioCreador = LeerTexto(
+                                reader,
+                                "UsuarioCreador"),
+                            RolUsuarioCreador = LeerTexto(
+                                reader,
+                                "RolUsuarioCreador"),
+                            Estado = LeerTexto(reader, "Estado"),
+                            FechaCreacion = reader.GetDateTime(
+                                reader.GetOrdinal("FechaCreacion"))
+                        };
 
-                            tareasPorId.Add(idTarea, tarea);
-                            tareas.Add(tarea);
-                        }
-
-                        tarea.Involucrados.Add(new TareaInvolucrado
-                        {
-                            IdTareaInvolucrado = reader.GetInt32(
-                                reader.GetOrdinal("IdTareaInvolucrado")),
-                            IdTarea = idTarea,
-                            Usuario = LeerTexto(reader, "Usuario")
-                        });
+                        tareas.Add(tarea);
+                        tareasPorId[tarea.IdTarea] = tarea;
                     }
-                }
-            }
 
-            return tareas;
-        }
-
-        public async Task<List<Tarea>> ObtenerCreadasPorUsuarioAsync(
-            string usuario,
-            CancellationToken cancellationToken)
-        {
-            const string sql = @"
-                SELECT
-                    tarea.IdTarea,
-                    tarea.Titulo,
-                    tarea.Descripcion,
-                    tarea.FechaVencimiento,
-                    tarea.UsuarioCreador,
-                    tarea.FechaCreacion,
-                    tarea.Estado,
-                    rol.Nombre AS RolUsuarioCreador,
-                    involucrado.IdTareaInvolucrado,
-                    involucrado.Usuario
-                FROM dbo.TRACKIT_Tareas tarea
-                INNER JOIN dbo.TRACKIT_TareaInvolucrados involucrado
-                    ON involucrado.IdTarea = tarea.IdTarea
-                OUTER APPLY
-                (
-                    SELECT TOP 1 r.Nombre
-                    FROM dbo.TRACKIT_UsuarioRoles usuarioRol
-                    INNER JOIN dbo.TRACKIT_Roles r
-                        ON r.IdRol = usuarioRol.IdRol
-                    WHERE usuarioRol.Usuario = tarea.UsuarioCreador
-                      AND usuarioRol.Activo = 1
-                      AND r.Activo = 1
-                    ORDER BY r.IdRol
-                ) rol
-                WHERE tarea.UsuarioCreador = @Usuario
-                ORDER BY
-                    tarea.FechaVencimiento,
-                    tarea.FechaCreacion DESC,
-                    tarea.IdTarea DESC,
-                    involucrado.IdTareaInvolucrado";
-
-            return await EjecutarConsultaAsync(sql, usuario, cancellationToken);
-        }
-
-        public async Task<List<Tarea>> ObtenerOtrasAsync(
-            string usuario,
-            string rolUsuario,
-            CancellationToken cancellationToken)
-        {
-            const string sql = @"
-                SELECT
-                    tarea.IdTarea,
-                    tarea.Titulo,
-                    tarea.Descripcion,
-                    tarea.FechaVencimiento,
-                    tarea.UsuarioCreador,
-                    tarea.FechaCreacion,
-                    tarea.Estado,
-                    rol.Nombre AS RolUsuarioCreador,
-                    involucrado.IdTareaInvolucrado,
-                    involucrado.Usuario
-                FROM dbo.TRACKIT_Tareas tarea
-                INNER JOIN dbo.TRACKIT_TareaInvolucrados involucrado
-                    ON involucrado.IdTarea = tarea.IdTarea
-                OUTER APPLY
-                (
-                    SELECT TOP 1 r.Nombre
-                    FROM dbo.TRACKIT_UsuarioRoles usuarioRol
-                    INNER JOIN dbo.TRACKIT_Roles r
-                        ON r.IdRol = usuarioRol.IdRol
-                    WHERE usuarioRol.Usuario = tarea.UsuarioCreador
-                      AND usuarioRol.Activo = 1
-                      AND r.Activo = 1
-                    ORDER BY r.IdRol
-                ) rol
-                WHERE tarea.UsuarioCreador <> @Usuario
-                  AND NOT EXISTS
-                  (
-                      SELECT 1
-                      FROM dbo.TRACKIT_TareaInvolucrados involucradoBuscado
-                      WHERE involucradoBuscado.IdTarea = tarea.IdTarea
-                        AND involucradoBuscado.Usuario = @Usuario
-                  )
-                  AND
-                  (
-                      @RolUsuario <> 'Tecnico_Soporte'
-                      OR EXISTS
-                      (
-                          SELECT 1
-                          FROM dbo.TRACKIT_UsuarioRoles creadorRol
-                          INNER JOIN dbo.TRACKIT_Roles creadorRolDetalle
-                              ON creadorRolDetalle.IdRol = creadorRol.IdRol
-                          WHERE creadorRol.Usuario = tarea.UsuarioCreador
-                            AND creadorRol.Activo = 1
-                            AND creadorRolDetalle.Activo = 1
-                            AND creadorRolDetalle.Nombre IN
-                                ('Tecnico_Soporte', 'Responsable_HW_SW')
-                      )
-                  )
-                ORDER BY
-                    tarea.FechaVencimiento,
-                    tarea.FechaCreacion DESC,
-                    tarea.IdTarea DESC,
-                    involucrado.IdTareaInvolucrado";
-
-            return await EjecutarConsultaAsync(
-                sql, usuario, cancellationToken, rolUsuario);
-        }
-
-        private async Task<List<Tarea>> EjecutarConsultaAsync(
-            string sql,
-            string usuario,
-            CancellationToken cancellationToken,
-            string rolUsuario = null)
-        {
-            var tareas = new List<Tarea>();
-            var tareasPorId = new Dictionary<int, Tarea>();
-
-            using (var connection = new SqlConnection(connectionString))
-            using (var command = new SqlCommand(sql, connection))
-            {
-                command.CommandType = CommandType.Text;
-                command.CommandTimeout = 30;
-                command.Parameters.Add("Usuario", SqlDbType.VarChar, 100).Value = usuario;
-
-                if (!string.IsNullOrWhiteSpace(rolUsuario))
-                {
-                    command.Parameters.Add("RolUsuario", SqlDbType.VarChar, 50).Value = rolUsuario;
-                }
-
-                await connection.OpenAsync(cancellationToken);
-
-                using (var reader = await command.ExecuteReaderAsync(cancellationToken))
-                {
-                    while (await reader.ReadAsync(cancellationToken))
+                    if (await reader.NextResultAsync(cancellationToken))
                     {
-                        var idTarea = reader.GetInt32(reader.GetOrdinal("IdTarea"));
-                        Tarea tarea;
-
-                        if (!tareasPorId.TryGetValue(idTarea, out tarea))
+                        while (await reader.ReadAsync(cancellationToken))
                         {
-                            tarea = new Tarea
+                            var idTarea = reader.GetInt32(
+                                reader.GetOrdinal("IdTarea"));
+                            Tarea tarea;
+
+                            if (!tareasPorId.TryGetValue(
+                                idTarea,
+                                out tarea))
                             {
-                                IdTarea = idTarea,
-                                Titulo = LeerTexto(reader, "Titulo"),
-                                Descripcion = LeerTexto(reader, "Descripcion"),
-                                FechaVencimiento = reader.GetDateTime(
-                                    reader.GetOrdinal("FechaVencimiento")),
-                                UsuarioCreador = LeerTexto(reader, "UsuarioCreador"),
-                                FechaCreacion = reader.GetDateTime(
-                                    reader.GetOrdinal("FechaCreacion")),
-                                Estado = LeerTexto(reader, "Estado"),
-                                RolUsuarioCreador = LeerTexto(
-                                    reader, "RolUsuarioCreador")
-                            };
+                                continue;
+                            }
 
-                            tareasPorId.Add(idTarea, tarea);
-                            tareas.Add(tarea);
+                            tarea.Involucrados.Add(
+                                new TareaInvolucrado
+                                {
+                                    IdTareaInvolucrado = reader.GetInt32(
+                                        reader.GetOrdinal(
+                                            "IdTareaInvolucrado")),
+                                    IdTarea = idTarea,
+                                    Usuario = LeerTexto(
+                                        reader,
+                                        "Usuario")
+                                });
                         }
-
-                        tarea.Involucrados.Add(new TareaInvolucrado
-                        {
-                            IdTareaInvolucrado = reader.GetInt32(
-                                reader.GetOrdinal("IdTareaInvolucrado")),
-                            IdTarea = idTarea,
-                            Usuario = LeerTexto(reader, "Usuario")
-                        });
                     }
+
+                    return tareas;
                 }
             }
-
-            return tareas;
         }
 
         private static string LeerTexto(SqlDataReader reader, string columna)

@@ -276,6 +276,102 @@ namespace TrackIT_backend.Repositories
             }
         }
 
+        public async Task<UsuarioRol> CrearAsync(
+            UsuarioRol usuarioRol,
+            CancellationToken cancellationToken)
+        {
+            const string sql = @"
+                DECLARE @IdUsuarioRol INT;
+
+                INSERT INTO dbo.TRACKIT_UsuarioRoles
+                (
+                    Usuario,
+                    IdRol,
+                    Activo
+                )
+                VALUES
+                (
+                    @Usuario,
+                    @IdRol,
+                    1
+                );
+
+                SET @IdUsuarioRol = CONVERT(INT, SCOPE_IDENTITY());
+
+                SELECT
+                    usuarioRol.IdUsuarioRol,
+                    usuarioRol.Usuario,
+                    usuarioRol.IdRol,
+                    rol.Nombre AS NombreRol,
+                    usuarioRol.Activo
+                FROM dbo.TRACKIT_UsuarioRoles usuarioRol
+                INNER JOIN dbo.TRACKIT_Roles rol
+                    ON rol.IdRol = usuarioRol.IdRol
+                WHERE usuarioRol.IdUsuarioRol = @IdUsuarioRol";
+
+            using (var connection = new SqlConnection(connectionString))
+            using (var command = new SqlCommand(sql, connection))
+            {
+                command.CommandType = CommandType.Text;
+                command.CommandTimeout = 30;
+                command.Parameters.Add(
+                    "Usuario",
+                    SqlDbType.VarChar,
+                    100).Value = usuarioRol.Usuario;
+                command.Parameters.Add(
+                    "IdRol",
+                    SqlDbType.Int).Value = usuarioRol.IdRol;
+
+                await connection.OpenAsync(cancellationToken);
+
+                using (var reader = await command.ExecuteReaderAsync(
+                    cancellationToken))
+                {
+                    if (!await reader.ReadAsync(cancellationToken))
+                    {
+                        throw new InvalidOperationException(
+                            "No se pudo obtener la asignación creada.");
+                    }
+
+                    return new UsuarioRol
+                    {
+                        IdUsuarioRol = reader.GetInt32(
+                            reader.GetOrdinal("IdUsuarioRol")),
+                        Usuario = LeerTexto(reader, "Usuario"),
+                        IdRol = reader.GetInt32(
+                            reader.GetOrdinal("IdRol")),
+                        NombreRol = LeerTexto(reader, "NombreRol"),
+                        Activo = reader.GetBoolean(
+                            reader.GetOrdinal("Activo"))
+                    };
+                }
+            }
+        }
+
+        public async Task<bool> EliminarAsync(
+            int idUsuarioRol,
+            CancellationToken cancellationToken)
+        {
+            const string sql = @"
+                DELETE FROM dbo.TRACKIT_UsuarioRoles
+                WHERE IdUsuarioRol = @IdUsuarioRol";
+
+            using (var connection = new SqlConnection(connectionString))
+            using (var command = new SqlCommand(sql, connection))
+            {
+                command.CommandType = CommandType.Text;
+                command.CommandTimeout = 30;
+                command.Parameters.Add(
+                    "IdUsuarioRol",
+                    SqlDbType.Int).Value = idUsuarioRol;
+
+                await connection.OpenAsync(cancellationToken);
+
+                return await command.ExecuteNonQueryAsync(
+                    cancellationToken) > 0;
+            }
+        }
+
         private static string LeerTexto(IDataRecord reader, string nombreColumna)
         {
             var ordinal = reader.GetOrdinal(nombreColumna);

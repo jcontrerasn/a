@@ -44,6 +44,49 @@ namespace TrackIT_backend.Controllers
             });
         }
 
+        // POST api/usuario-roles
+        [HttpPost]
+        [Route("")]
+        public async Task<IHttpActionResult> Crear(
+            CrearUsuarioRolRequestDto request,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                var usuarioRol = await usuarioRolService.CrearAsync(
+                    request,
+                    cancellationToken);
+
+                return Content(HttpStatusCode.Created,
+                    new ApiResponse<UsuarioRolResponseDto>
+                    {
+                        Status = (int)HttpStatusCode.Created,
+                        Message = "Asignación usuario-rol creada correctamente.",
+                        Data = usuarioRol
+                    });
+            }
+            catch (ArgumentException exception)
+            {
+                return Content(HttpStatusCode.BadRequest,
+                    new ApiResponse<object>
+                    {
+                        Status = (int)HttpStatusCode.BadRequest,
+                        Message = exception.Message,
+                        Data = null
+                    });
+            }
+            catch (InvalidOperationException exception)
+            {
+                return Content(HttpStatusCode.Conflict,
+                    new ApiResponse<object>
+                    {
+                        Status = (int)HttpStatusCode.Conflict,
+                        Message = exception.Message,
+                        Data = null
+                    });
+            }
+        }
+
         // PUT api/usuario-roles/{idUsuarioRol}
         [HttpPut]
         [Route("{idUsuarioRol:int}")]
@@ -128,6 +171,49 @@ namespace TrackIT_backend.Controllers
                     Status = (int)HttpStatusCode.OK,
                     Message = "Estado de la asignación actualizado correctamente.",
                     Data = usuarioRol
+                });
+            }
+            catch (ArgumentException exception)
+            {
+                return Content(HttpStatusCode.BadRequest,
+                    new ApiResponse<object>
+                    {
+                        Status = (int)HttpStatusCode.BadRequest,
+                        Message = exception.Message,
+                        Data = null
+                    });
+            }
+        }
+
+        // DELETE api/usuario-roles/{idUsuarioRol}
+        [HttpDelete]
+        [Route("{idUsuarioRol:int}")]
+        public async Task<IHttpActionResult> Eliminar(
+            int idUsuarioRol,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                var eliminado = await usuarioRolService.EliminarAsync(
+                    idUsuarioRol,
+                    cancellationToken);
+
+                if (!eliminado)
+                {
+                    return Content(HttpStatusCode.NotFound,
+                        new ApiResponse<object>
+                        {
+                            Status = (int)HttpStatusCode.NotFound,
+                            Message = "No se encontró la asignación indicada.",
+                            Data = null
+                        });
+                }
+
+                return Ok(new ApiResponse<object>
+                {
+                    Status = (int)HttpStatusCode.OK,
+                    Message = "Usuario eliminado correctamente.",
+                    Data = null
                 });
             }
             catch (ArgumentException exception)

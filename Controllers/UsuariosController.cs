@@ -65,6 +65,40 @@ namespace TrackIT_backend.Controllers
             });
         }
 
+        // POST api/usuarios/buscar-por-filtro
+        [HttpPost]
+        [Route("buscar-por-filtro")]
+        public async Task<IHttpActionResult> BuscarPorFiltro(
+            BuscarUsuariosPorFiltroRequestDto request,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                var usuarios = await usuarioService.BuscarPorFiltroAsync(
+                    request == null ? null : request.Pfiltro_c,
+                    cancellationToken);
+
+                return Ok(new ApiResponse<List<UsuarioCuentaResponse>>
+                {
+                    Status = (int)HttpStatusCode.OK,
+                    Message = usuarios.Count == 0
+                        ? "No se encontraron usuarios para el filtro indicado."
+                        : "Usuarios obtenidos correctamente.",
+                    Data = usuarios
+                });
+            }
+            catch (ArgumentException exception)
+            {
+                return Content(HttpStatusCode.BadRequest,
+                    new ApiResponse<object>
+                    {
+                        Status = (int)HttpStatusCode.BadRequest,
+                        Message = exception.Message,
+                        Data = null
+                    });
+            }
+        }
+
         // POST api/usuarios/personal-trackit/buscar-por-filtro
         [HttpPost]
         [Route("personal-trackit/buscar-por-filtro")]

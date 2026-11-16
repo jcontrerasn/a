@@ -22,17 +22,19 @@ El ejemplo `TrackItem` usa `InMemoryTrackItemRepository` para poder probar la AP
 - `POST /api/track-items`
 - `GET /api/usuarios/cuenta/{cuenta}`
 - `POST /api/usuarios/personal-trackit/buscar-por-filtro`
-- `GET /api/tareas/involucrado/{usuario}`
-- `GET /api/tareas/creadas-por/{usuario}`
-- `GET /api/tareas/otras/{usuario}`
+- `POST /api/usuarios/buscar-por-filtro`
 - `GET /api/tareas/{idTarea}`
 - `POST /api/tareas`
+- `POST /api/tareas/listar-por-flag`
 - `PUT /api/tareas/{idTarea}`
 - `DELETE /api/tareas/{idTarea}?usuario={usuario}`
 - `GET /api/usuario-roles`
 - `PUT /api/usuario-roles/{idUsuarioRol}`
 - `PATCH /api/usuario-roles/{idUsuarioRol}/estado`
+- `POST /api/usuario-roles`
+- `DELETE /api/usuario-roles/{idUsuarioRol}`
 - `GET /api/roles`
+- `GET /api/alertas/historial`
 - `GET /api/tareas/{idTarea}/historial`
 - `POST /api/tareas/{idTarea}/anotaciones`
 

@@ -31,5 +31,13 @@ namespace TrackIT_backend.Interfaces
         Task<UsuarioRol> CambiarEstadoAsync(
             int idUsuarioRol,
             CancellationToken cancellationToken);
+
+        Task<UsuarioRol> CrearAsync(
+            UsuarioRol usuarioRol,
+            CancellationToken cancellationToken);
+
+        Task<bool> EliminarAsync(
+            int idUsuarioRol,
+            CancellationToken cancellationToken);
     }
 }

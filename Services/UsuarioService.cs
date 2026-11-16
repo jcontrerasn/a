@@ -79,5 +79,27 @@ namespace TrackIT_backend.Services
                 Area = usuario.Area
             }).ToList();
         }
+
+        public async Task<List<UsuarioCuentaResponse>> BuscarPorFiltroAsync(
+            string filtro,
+            CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrWhiteSpace(filtro))
+            {
+                throw new ArgumentException(
+                    "El filtro es obligatorio.");
+            }
+
+            var usuarios = await usuarioRepository.BuscarPorFiltroAsync(
+                filtro.Trim(),
+                cancellationToken);
+
+            return usuarios.Select(usuario => new UsuarioCuentaResponse
+            {
+                Usuario = usuario.UsuarioNombre,
+                NombreCompleto = usuario.NombreCompleto,
+                Area = usuario.Area
+            }).ToList();
+        }
     }
 }

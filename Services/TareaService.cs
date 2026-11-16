@@ -332,65 +332,63 @@ namespace TrackIT_backend.Services
                 cancellationToken);
         }
 
-        public async Task<List<TareaResponseDto>> ObtenerInvolucradoEnAsync(
-            string usuario,
+        public async Task<List<TareaResponseDto>> ObtenerPorFlagAsync(
+            ListarTareasFlagRequestDto request,
             CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(usuario))
+            if (request == null)
             {
                 throw new ArgumentException(
-                    "El usuario involucrado es obligatorio.",
-                    "usuario");
+                    "Los datos del filtro son obligatorios.",
+                    "request");
             }
 
-            var tareas = await repository.ObtenerInvolucradoEnAsync(
-                usuario.Trim(), cancellationToken);
+            if (string.IsNullOrWhiteSpace(request.Flag))
+            {
+                throw new ArgumentException(
+                    "El flag es obligatorio.",
+                    "request");
+            }
 
-            return tareas.Select(Map).ToList();
-        }
+            var flag = request.Flag.Trim().ToLowerInvariant();
 
-        public async Task<List<TareaResponseDto>> ObtenerOtrasAsync(
-            string usuario,
-            CancellationToken cancellationToken)
-        {
-            if (string.IsNullOrWhiteSpace(usuario))
+            if (flag != "creadas"
+                && flag != "asignadas"
+                && flag != "otras")
+            {
+                throw new ArgumentException(
+                    "El flag debe ser 'creadas', 'asignadas' u 'otras'.",
+                    "request");
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Usuario))
             {
                 throw new ArgumentException(
                     "El usuario es obligatorio.",
-                    "usuario");
+                    "request");
             }
 
-            var usuarioNormalizado = usuario.Trim();
-            var rolUsuario = await usuarioRolRepository
-                .ObtenerNombreRolActivoAsync(
-                    usuarioNormalizado, cancellationToken);
+            var usuario = request.Usuario.Trim();
 
-            if (string.IsNullOrWhiteSpace(rolUsuario))
+            if (flag == "otras")
             {
-                throw new ArgumentException(
-                    "El usuario no está registrado o no tiene un rol activo en el sistema.",
-                    "usuario");
+                var rol = await usuarioRolRepository
+                    .ObtenerNombreRolActivoAsync(
+                        usuario,
+                        cancellationToken);
+
+                if (string.IsNullOrWhiteSpace(rol))
+                {
+                    throw new ArgumentException(
+                        "El usuario no está registrado o no tiene un rol activo en el sistema.",
+                        "request");
+                }
             }
 
-            var tareas = await repository.ObtenerOtrasAsync(
-                usuarioNormalizado, rolUsuario, cancellationToken);
-
-            return tareas.Select(Map).ToList();
-        }
-
-        public async Task<List<TareaResponseDto>> ObtenerCreadasPorUsuarioAsync(
-            string usuario,
-            CancellationToken cancellationToken)
-        {
-            if (string.IsNullOrWhiteSpace(usuario))
-            {
-                throw new ArgumentException(
-                    "El usuario creador es obligatorio.",
-                    "usuario");
-            }
-
-            var tareas = await repository.ObtenerCreadasPorUsuarioAsync(
-                usuario.Trim(), cancellationToken);
+            var tareas = await repository.ObtenerPorFlagAsync(
+                flag,
+                usuario,
+                cancellationToken);
 
             return tareas.Select(Map).ToList();
         }
