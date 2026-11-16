@@ -260,99 +260,37 @@ namespace TrackIT_backend.Controllers
             }
         }
 
-        // GET api/tareas/involucrado/{usuario}
-        [HttpGet]
-        [Route("involucrado/{usuario}")]
-        public async Task<IHttpActionResult> ObtenerComoInvolucrado(
-            string usuario,
+        // POST api/tareas/listar-por-flag
+        [HttpPost]
+        [Route("listar-por-flag")]
+        public async Task<IHttpActionResult> ObtenerPorFlag(
+            ListarTareasFlagRequestDto request,
             CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(usuario))
-            {
-                return Content(HttpStatusCode.BadRequest, new ApiResponse<object>
-                {
-                    Status = (int)HttpStatusCode.BadRequest,
-                    Message = "El usuario involucrado es obligatorio.",
-                    Data = null
-                });
-            }
-
-            var tareas = await tareaService.ObtenerInvolucradoEnAsync(
-                usuario, cancellationToken);
-
-            return Ok(new ApiResponse<List<TareaResponseDto>>
-            {
-                Status = (int)HttpStatusCode.OK,
-                Message = "Tareas donde el usuario está involucrado obtenidas correctamente.",
-                Data = tareas
-            });
-        }
-
-        // GET api/tareas/creadas-por/{usuario}
-        [HttpGet]
-        [Route("creadas-por/{usuario}")]
-        public async Task<IHttpActionResult> ObtenerCreadasPorUsuario(
-            string usuario,
-            CancellationToken cancellationToken)
-        {
-            if (string.IsNullOrWhiteSpace(usuario))
-            {
-                return Content(HttpStatusCode.BadRequest, new ApiResponse<object>
-                {
-                    Status = (int)HttpStatusCode.BadRequest,
-                    Message = "El usuario creador es obligatorio.",
-                    Data = null
-                });
-            }
-
-            var tareas = await tareaService.ObtenerCreadasPorUsuarioAsync(
-                usuario, cancellationToken);
-
-            return Ok(new ApiResponse<List<TareaResponseDto>>
-            {
-                Status = (int)HttpStatusCode.OK,
-                Message = "Tareas creadas por el usuario obtenidas correctamente.",
-                Data = tareas
-            });
-        }
-
-        // GET api/tareas/otras/{usuario}
-        [HttpGet]
-        [Route("otras/{usuario}")]
-        public async Task<IHttpActionResult> ObtenerOtras(
-            string usuario,
-            CancellationToken cancellationToken)
-        {
-            if (string.IsNullOrWhiteSpace(usuario))
-            {
-                return Content(HttpStatusCode.BadRequest, new ApiResponse<object>
-                {
-                    Status = (int)HttpStatusCode.BadRequest,
-                    Message = "El usuario es obligatorio.",
-                    Data = null
-                });
-            }
-
             try
             {
-                var tareas = await tareaService.ObtenerOtrasAsync(
-                    usuario, cancellationToken);
+                var tareas = await tareaService.ObtenerPorFlagAsync(
+                    request,
+                    cancellationToken);
 
                 return Ok(new ApiResponse<List<TareaResponseDto>>
                 {
                     Status = (int)HttpStatusCode.OK,
-                    Message = "Otras tareas obtenidas correctamente.",
+                    Message = tareas.Count == 0
+                        ? "No se encontraron tareas para el filtro indicado."
+                        : "Tareas obtenidas correctamente.",
                     Data = tareas
                 });
             }
             catch (ArgumentException exception)
             {
-                return Content(HttpStatusCode.BadRequest, new ApiResponse<object>
-                {
-                    Status = (int)HttpStatusCode.BadRequest,
-                    Message = exception.Message,
-                    Data = null
-                });
+                return Content(HttpStatusCode.BadRequest,
+                    new ApiResponse<object>
+                    {
+                        Status = (int)HttpStatusCode.BadRequest,
+                        Message = exception.Message,
+                        Data = null
+                    });
             }
         }
 

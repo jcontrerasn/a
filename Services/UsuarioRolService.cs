@@ -128,5 +128,89 @@ namespace TrackIT_backend.Services
                     Activo = usuarioRol.Activo
                 };
         }
+
+        public async Task<UsuarioRolResponseDto> CrearAsync(
+            CrearUsuarioRolRequestDto request,
+            CancellationToken cancellationToken)
+        {
+            if (request == null)
+            {
+                throw new ArgumentException(
+                    "Los datos de la asignación son obligatorios.");
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Usuario))
+            {
+                throw new ArgumentException(
+                    "El usuario es obligatorio.");
+            }
+
+            if (request.IdRol <= 0)
+            {
+                throw new ArgumentException(
+                    "El Id del rol debe ser mayor que cero.");
+            }
+
+            var usuario = request.Usuario.Trim();
+
+            if (usuario.Length > 100)
+            {
+                throw new ArgumentException(
+                    "El usuario no puede superar los 100 caracteres.");
+            }
+
+            var nombreRol = await repository.ObtenerNombreRolAsync(
+                request.IdRol,
+                cancellationToken);
+
+            if (string.IsNullOrWhiteSpace(nombreRol))
+            {
+                throw new ArgumentException(
+                    "No existe el rol indicado.");
+            }
+
+            if (await repository.ExisteAsignacionAsync(
+                usuario,
+                request.IdRol,
+                null,
+                cancellationToken))
+            {
+                throw new InvalidOperationException(
+                    "Ya existe una asignación para ese usuario y rol.");
+            }
+
+            var usuarioRol = await repository.CrearAsync(
+                new UsuarioRol
+                {
+                    Usuario = usuario,
+                    IdRol = request.IdRol,
+                    NombreRol = nombreRol,
+                    Activo = true
+                },
+                cancellationToken);
+
+            return new UsuarioRolResponseDto
+            {
+                IdUsuarioRol = usuarioRol.IdUsuarioRol,
+                Usuario = usuarioRol.Usuario,
+                NombreRol = usuarioRol.NombreRol,
+                Activo = usuarioRol.Activo
+            };
+        }
+
+        public async Task<bool> EliminarAsync(
+            int idUsuarioRol,
+            CancellationToken cancellationToken)
+        {
+            if (idUsuarioRol <= 0)
+            {
+                throw new ArgumentException(
+                    "El Id de la asignación debe ser mayor que cero.");
+            }
+
+            return await repository.EliminarAsync(
+                idUsuarioRol,
+                cancellationToken);
+        }
     }
 }

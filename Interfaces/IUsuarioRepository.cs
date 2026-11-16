@@ -14,5 +14,9 @@ namespace TrackIT_backend.Interfaces
         Task<List<Usuario>> BuscarPersonalTrackItPorFiltroAsync(
             string filtro,
             CancellationToken cancellationToken);
+
+        Task<List<Usuario>> BuscarPorFiltroAsync(
+            string filtro,
+            CancellationToken cancellationToken);
     }
 }

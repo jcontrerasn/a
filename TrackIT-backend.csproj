@@ -113,12 +113,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Dtos\" />
-    <Folder Include="Entities\" />
-    <Folder Include="Interfaces\" />
     <Folder Include="Models\" />
-    <Folder Include="Repositories\" />
-    <Folder Include="Services\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\BundleConfig.cs" />
@@ -146,12 +141,13 @@
     <Compile Include="Controllers\UsuariosController.cs" />
     <Compile Include="Controllers\UsuariosRolesController.cs" />
     <Compile Include="Controllers\RolesController.cs" />
-    <Compile Include="Controllers\ValuesController.cs" />
+    <Compile Include="Controllers\AlertasController.cs" />
     <Compile Include="Dtos\ApiResponse.cs" />
     <Compile Include="Dtos\AnotacionTareaResponseDto.cs" />
     <Compile Include="Dtos\ActualizarTareaRequestDto.cs" />
     <Compile Include="Dtos\CrearAnotacionTareaRequestDto.cs" />
     <Compile Include="Dtos\CrearTareaRequestDto.cs" />
+    <Compile Include="Dtos\ListarTareasFlagRequestDto.cs" />
     <Compile Include="Dtos\CreateTrackItemDto.cs" />
     <Compile Include="Dtos\HistorialTareaResponseDto.cs" />
     <Compile Include="Dtos\TareaDetalleResponseDto.cs" />
@@ -163,7 +159,10 @@
     <Compile Include="Dtos\PersonalTrackItResponseDto.cs" />
     <Compile Include="Dtos\UsuarioRolResponseDto.cs" />
     <Compile Include="Dtos\ActualizarUsuarioRolRequestDto.cs" />
+    <Compile Include="Dtos\CrearUsuarioRolRequestDto.cs" />
     <Compile Include="Dtos\RolResponseDto.cs" />
+    <Compile Include="Dtos\AlertaDestinatarioResponseDto.cs" />
+    <Compile Include="Dtos\AlertaResponseDto.cs" />
     <Compile Include="Entities\EntityBase.cs" />
     <Compile Include="Entities\TareaHistorial.cs" />
     <Compile Include="Entities\AnotacionTareaDetalle.cs" />
@@ -176,6 +175,8 @@
     <Compile Include="Entities\UsuarioAsignadoDetalle.cs" />
     <Compile Include="Entities\UsuarioRol.cs" />
     <Compile Include="Entities\Rol.cs" />
+    <Compile Include="Entities\Alerta.cs" />
+    <Compile Include="Entities\AlertaDestinatario.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -184,12 +185,14 @@
     <Compile Include="Repositories\SqlUsuarioRepository.cs" />
     <Compile Include="Repositories\SqlUsuarioRolRepository.cs" />
     <Compile Include="Repositories\SqlRolRepository.cs" />
+    <Compile Include="Repositories\SqlAlertaRepository.cs" />
     <Compile Include="Repositories\SqlTareaRepository.cs" />
     <Compile Include="Services\TareaService.cs" />
     <Compile Include="Services\TrackItemService.cs" />
     <Compile Include="Services\UsuarioService.cs" />
     <Compile Include="Services\UsuarioRolService.cs" />
     <Compile Include="Services\RolService.cs" />
+    <Compile Include="Services\AlertaService.cs" />
     <Compile Include="Interfaces\IRepository.cs" />
     <Compile Include="Interfaces\ITrackItemRepository.cs" />
     <Compile Include="Interfaces\ITrackItemService.cs" />
@@ -200,6 +203,8 @@
     <Compile Include="Interfaces\IUsuarioRolService.cs" />
     <Compile Include="Interfaces\IRolRepository.cs" />
     <Compile Include="Interfaces\IRolService.cs" />
+    <Compile Include="Interfaces\IAlertaRepository.cs" />
+    <Compile Include="Interfaces\IAlertaService.cs" />
     <Compile Include="Interfaces\IUsuarioService.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -248,6 +253,8 @@
     <Content Include="Areas\HelpPage\Views\Help\Api.cshtml" />
     <None Include="Project_Readme.html" />
     <None Include="ARCHITECTURE.md" />
+    <None Include="Properties\PublishProfiles\Prueba.pubxml" />
+    <None Include="Properties\PublishProfiles\TrackIT.pubxml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

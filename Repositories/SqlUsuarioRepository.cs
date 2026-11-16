@@ -96,6 +96,48 @@ namespace TrackIT_backend.Repositories
             }
         }
 
+        public async Task<List<Usuario>> BuscarPorFiltroAsync(
+            string filtro,
+            CancellationToken cancellationToken)
+        {
+            using (var connection = new SqlConnection(connectionString))
+            using (var command = new SqlCommand(
+                "pr_sm_ListarUsuarioXFiltro",
+                connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandTimeout = 30;
+                command.Parameters.Add(
+                    "Pfiltro_c",
+                    SqlDbType.VarChar,
+                    50).Value = filtro;
+
+                await connection.OpenAsync(cancellationToken);
+
+                using (var reader = await command.ExecuteReaderAsync(
+                    cancellationToken))
+                {
+                    var usuarios = new List<Usuario>();
+
+                    while (await reader.ReadAsync(cancellationToken))
+                    {
+                        usuarios.Add(new Usuario
+                        {
+                            UsuarioNombre = LeerTexto(
+                                reader,
+                                "Usuario"),
+                            NombreCompleto = LeerTexto(
+                                reader,
+                                "NombreCompleto"),
+                            Area = LeerTexto(reader, "Area")
+                        });
+                    }
+
+                    return usuarios;
+                }
+            }
+        }
+
         private static string LeerTexto(SqlDataReader reader, string columna)
         {
             var valor = reader[columna];
