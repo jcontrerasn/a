@@ -5,6 +5,7 @@ namespace TrackIT_backend.Dtos
 {
     public class TareaDetalleResponseDto
     {
+        public string CodigoTarea { get; set; }
         public string Titulo { get; set; }
         public DateTime FechaVencimiento { get; set; }
         public string Descripcion { get; set; }

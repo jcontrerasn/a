@@ -145,8 +145,7 @@ namespace TrackIT_backend.Controllers
             }
 
             return new UsuarioService(
-                new SqlUsuarioRepository(connection.ConnectionString),
-                new SqlUsuarioRolRepository(connection.ConnectionString));
+                new SqlUsuarioRepository(connection.ConnectionString));
         }
     }
 }

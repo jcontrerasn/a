@@ -29,7 +29,7 @@ namespace TrackIT_backend.Repositories
         {
             using (var connection = new SqlConnection(connectionString))
             using (var command = new SqlCommand(
-                "pr_sm_BuscarUsuarioXCuenta", connection))
+                "pr_trackit_BuscarUsuarioXCuentaTrackIT", connection))
             {
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandTimeout = 30;
@@ -48,7 +48,8 @@ namespace TrackIT_backend.Repositories
                     {
                         UsuarioNombre = LeerTexto(reader, "Usuario"),
                         NombreCompleto = LeerTexto(reader, "NombreCompleto"),
-                        Area = LeerTexto(reader, "Area")
+                        Area = LeerTexto(reader, "Area"),
+                        Rol = LeerTexto(reader, "Rol")
                     };
                 }
             }

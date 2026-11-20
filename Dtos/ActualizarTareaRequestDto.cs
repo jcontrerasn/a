@@ -15,7 +15,6 @@ namespace TrackIT_backend.Dtos
         [Required(ErrorMessage = "La fecha de vencimiento es obligatoria.")]
         public DateTime FechaVencimiento { get; set; }
 
-        [Required(ErrorMessage = "Debe indicar al menos un usuario involucrado.")]
         public string UsuariosInvolucrados { get; set; }
     }
 }

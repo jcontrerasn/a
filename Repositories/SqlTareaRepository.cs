@@ -48,6 +48,7 @@ namespace TrackIT_backend.Repositories
 
                     var tarea = new TareaDetalle
                     {
+                        CodigoTarea = LeerTexto(reader, "CodigoTarea"),
                         Titulo = LeerTexto(reader, "Titulo"),
                         FechaVencimiento = reader.GetDateTime(
                             reader.GetOrdinal("FechaVencimiento")),
@@ -262,6 +263,7 @@ namespace TrackIT_backend.Repositories
                     {
                         IdTarea = reader.GetInt32(
                             reader.GetOrdinal("IdTarea")),
+                        CodigoTarea = LeerTexto(reader, "CodigoTarea"),
                         Titulo = LeerTexto(reader, "Titulo"),
                         Descripcion = LeerTexto(reader, "Descripcion"),
                         FechaVencimiento = reader.GetDateTime(
@@ -330,6 +332,7 @@ namespace TrackIT_backend.Repositories
                         {
                             IdTarea = reader.GetInt32(
                                 reader.GetOrdinal("IdTarea")),
+                            CodigoTarea = LeerTexto(reader, "CodigoTarea"),
                             Titulo = LeerTexto(reader, "Titulo"),
                             Descripcion = LeerTexto(reader, "Descripcion"),
                             FechaVencimiento = reader.GetDateTime(
@@ -439,6 +442,7 @@ namespace TrackIT_backend.Repositories
                         {
                             IdTarea = reader.GetInt32(
                                 reader.GetOrdinal("IdTarea")),
+                            CodigoTarea = LeerTexto(reader, "CodigoTarea"),
                             Titulo = LeerTexto(reader, "Titulo"),
                             Descripcion = LeerTexto(
                                 reader,

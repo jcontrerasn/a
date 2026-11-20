@@ -52,6 +52,9 @@ namespace TrackIT_backend.Repositories
                                 reader.GetOrdinal("IdAlerta")),
                             IdTarea = reader.GetInt32(
                                 reader.GetOrdinal("IdTarea")),
+                            CodigoTarea = LeerTexto(
+                                reader,
+                                "CodigoTarea"),
                             TipoAlerta = LeerTexto(
                                 reader,
                                 "TipoAlerta"),

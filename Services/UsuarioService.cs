@@ -11,14 +11,10 @@ namespace TrackIT_backend.Services
     public class UsuarioService : IUsuarioService
     {
         private readonly IUsuarioRepository usuarioRepository;
-        private readonly IUsuarioRolRepository usuarioRolRepository;
 
-        public UsuarioService(
-            IUsuarioRepository usuarioRepository,
-            IUsuarioRolRepository usuarioRolRepository)
+        public UsuarioService(IUsuarioRepository usuarioRepository)
         {
             this.usuarioRepository = usuarioRepository;
-            this.usuarioRolRepository = usuarioRolRepository;
         }
 
         public async Task<UsuarioCuentaResponse> BuscarPorCuentaAsync(
@@ -31,14 +27,6 @@ namespace TrackIT_backend.Services
             }
 
             var cuentaValidada = cuenta.Trim();
-            var rol = await usuarioRolRepository.ObtenerNombreRolActivoAsync(
-                cuentaValidada, cancellationToken);
-
-            if (string.IsNullOrWhiteSpace(rol))
-            {
-                return null;
-            }
-
             var usuario = await usuarioRepository.BuscarPorCuentaAsync(
                 cuentaValidada, cancellationToken);
 
@@ -52,7 +40,7 @@ namespace TrackIT_backend.Services
                 Usuario = usuario.UsuarioNombre,
                 NombreCompleto = usuario.NombreCompleto,
                 Area = usuario.Area,
-                Rol = rol
+                Rol = usuario.Rol
             };
         }
 

@@ -7,6 +7,7 @@ namespace TrackIT_backend.Entities
     {
         public int IdAlerta { get; set; }
         public int IdTarea { get; set; }
+        public string CodigoTarea { get; set; }
         public string TipoAlerta { get; set; }
         public string TituloTarea { get; set; }
         public string Asunto { get; set; }

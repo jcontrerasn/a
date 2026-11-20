@@ -43,6 +43,7 @@ namespace TrackIT_backend.Services
 
             return new TareaDetalleResponseDto
             {
+                CodigoTarea = tarea.CodigoTarea,
                 Titulo = tarea.Titulo,
                 FechaVencimiento = tarea.FechaVencimiento,
                 Descripcion = tarea.Descripcion,
@@ -214,13 +215,6 @@ namespace TrackIT_backend.Services
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
-            if (usuariosInvolucrados.Count == 0)
-            {
-                throw new ArgumentException(
-                    "Debe indicar al menos un usuario involucrado.",
-                    "request");
-            }
-
             if (usuariosInvolucrados.Any(usuario => usuario.Length > 100))
             {
                 throw new ArgumentException(
@@ -277,13 +271,6 @@ namespace TrackIT_backend.Services
                 .Where(usuario => !string.IsNullOrWhiteSpace(usuario))
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
-
-            if (usuariosInvolucrados.Count == 0)
-            {
-                throw new ArgumentException(
-                    "Debe indicar al menos un usuario involucrado.",
-                    "request");
-            }
 
             if (usuariosInvolucrados.Any(usuario => usuario.Length > 100))
             {
@@ -398,6 +385,7 @@ namespace TrackIT_backend.Services
             return new TareaResponseDto
             {
                 IdTarea = tarea.IdTarea,
+                CodigoTarea = tarea.CodigoTarea,
                 Titulo = tarea.Titulo,
                 Descripcion = tarea.Descripcion,
                 FechaVencimiento = tarea.FechaVencimiento.ToString("yyyy-MM-dd"),

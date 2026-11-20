@@ -26,6 +26,7 @@ namespace TrackIT_backend.Services
             {
                 IdAlerta = alerta.IdAlerta,
                 IdTarea = alerta.IdTarea,
+                CodigoTarea = alerta.CodigoTarea,
                 TipoAlerta = alerta.TipoAlerta,
                 TituloTarea = alerta.TituloTarea,
                 Asunto = alerta.Asunto,
